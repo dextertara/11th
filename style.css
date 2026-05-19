@@ -1,0 +1,378 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; 
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+  background: #168cff url("bg.png") center / cover no-repeat fixed;
+  font-family: Arial, Helvetica, sans-serif;
+  touch-action: manipulation; 
+}
+
+.box-btn {
+  z-index: 999;
+}
+
+.stage {
+  position: relative;
+  width: 100vw;
+  height: 100svh; 
+  min-height: 610px;
+  overflow: hidden;
+}
+
+/* HINT TEXT */
+.hint-text {
+  position: absolute;
+  top: 15%;
+  width: 100%;
+  text-align: center;
+  color: white;
+  font-size: clamp(14px, 4vw, 22px);
+  font-weight: bold;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  opacity: 0.8;
+  z-index: 10;
+  pointer-events: auto;
+  animation: pulseHint 2s infinite alternate;
+  transition: opacity 0.5s ease;
+}
+.hint-text.hidden {
+  opacity: 0 !important;
+}
+@keyframes pulseHint {
+  from { transform: scale(1); opacity: 0.6; }
+  to { transform: scale(1.05); opacity: 1; }
+}
+
+/* CENTER BOX - Z-index adjusted to stay behind the surprise items */
+.box-btn {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(140px, 20vw, 220px);
+  aspect-ratio: 1;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  z-index: 90; /* Lower than surprise */
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s;
+}
+
+.box-btn:active {
+  transform: translate(-50%, -50%) scale(0.95);
+}
+
+.box-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 14px 18px rgba(0,0,0,.24));
+  transition: opacity .3s ease, transform .4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.open-box {
+  opacity: 0;
+  transform: scale(.85);
+}
+
+.box-btn.opened .close-box {
+  opacity: 0;
+  transform: scale(.82);
+}
+
+.box-btn.opened .open-box {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* VINYL SECTION */
+.vinyl-area {
+  position: absolute;
+  left: clamp(-10px, 2vw, 22px);
+  bottom: clamp(10px, 3vh, 30px);
+  width: clamp(220px, 35vw, 400px);
+  height: clamp(150px, 25vw, 300px);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  z-index: 80;
+}
+
+.vinyl-cover {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: clamp(140px, 20vw, 280px);
+  z-index: 6;
+  filter: drop-shadow(0 12px 14px rgba(0,0,0,.35));
+}
+
+.disk {
+  position: absolute;
+  left: clamp(110px, 15vw, 210px);
+  bottom: clamp(15px, 2.5vw, 35px);
+  width: clamp(120px, 17vw, 240px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  opacity: 0;
+  transform: translateX(-50px);
+  z-index: 5;
+  background:
+    radial-gradient(circle, #f22d36 0 11%, #151515 12% 22%, transparent 23%),
+    repeating-radial-gradient(circle, #111 0 6px, #2c2c2c 7px 10px, #101010 11px 15px);
+  box-shadow: inset 0 0 26px rgba(255,255,255,.13), 0 12px 18px rgba(0,0,0,.35);
+}
+
+.disk span {
+  position: absolute;
+  inset: 42%;
+  border-radius: 50%;
+  background: #ff3030;
+}
+
+.vinyl-area.playing .disk {
+  animation: diskSlideOut .65s ease forwards, diskSpin 3.6s linear .65s infinite;
+}
+
+.vinyl-area.returning .disk {
+  animation: diskBack .45s ease forwards;
+}
+
+@keyframes diskSlideOut {
+  from { opacity: 0; transform: translateX(-50px) rotate(0deg); }
+  to { opacity: 1; transform: translateX(10px) rotate(0deg); }
+}
+
+@keyframes diskSpin {
+  from { opacity: 1; transform: translateX(10px) rotate(0deg); }
+  to { opacity: 1; transform: translateX(10px) rotate(360deg); }
+}
+
+@keyframes diskBack {
+  from { opacity: 1; transform: translateX(10px) rotate(180deg); }
+  to { opacity: 0; transform: translateX(-50px) rotate(360deg); }
+}
+
+
+/* SURPRISE POP ITEMS */
+.surprise {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  /* Z-index 100 puts this ABOVE the box. 
+     Pointer-events: none allows taps to pass through it to close the box! */
+  z-index: 100; 
+  pointer-events: none;
+}
+
+.surprise.show {
+  opacity: 1;
+}
+
+.pop-item,
+.heart,
+.flower,
+.sparkle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.1);
+}
+
+.surprise.show .pop-item,
+.surprise.show .heart,
+.surprise.show .flower,
+.surprise.show .sparkle {
+  animation: comeOutBox 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards,
+             floatSoft 3s ease-in-out 1s infinite alternate;
+}
+
+.surprise.closing .pop-item,
+.surprise.closing .heart,
+.surprise.closing .flower,
+.surprise.closing .sparkle {
+  animation: returnToBox 0.4s ease-in forwards;
+}
+
+@keyframes comeOutBox {
+  0% { opacity: 0; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.1) rotate(0deg); }
+  60% { opacity: 1; left: var(--x); top: calc(var(--y) - 5%); transform: translate(-50%, -50%) scale(1.1) rotate(calc(var(--r) + 5deg)); }
+  100% { opacity: 1; left: var(--x); top: var(--y); transform: translate(-50%, -50%) scale(1) rotate(var(--r)); }
+}
+
+@keyframes returnToBox {
+  from { opacity: 1; left: var(--x); top: var(--y); transform: translate(-50%, -50%) scale(1) rotate(var(--r)); }
+  to { opacity: 0; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.1) rotate(0deg); }
+}
+
+@keyframes floatSoft {
+  from { margin-top: 0; }
+  to { margin-top: -12px; }
+}
+
+/* MAIN POP ITEMS (Letter, Photos, Tulips) */
+.tulips {
+  width: clamp(150px, 35vw, 350px);
+  --x: 22%;
+  --y: 20%;
+  --r: -25deg;
+  z-index: 110;
+  filter: drop-shadow(0 10px 10px rgba(0,0,0,.22));
+  animation-delay: .05s !important;
+}
+
+.photo {
+  width: clamp(100px, 20vw, 180px);
+  z-index: 105;
+  filter: drop-shadow(0 10px 12px rgba(0,0,0,.3));
+  border: 4px solid white;
+  border-bottom-width: 15px;
+  background: white;
+}
+
+.photo1 {
+  --x: 75%;
+  --y: 26%;
+  --r: 12deg;
+  animation-delay: .1s !important;
+}
+
+.photo2 {
+  --x: 82%;
+  --y: 52%;
+  --r: -8deg;
+  animation-delay: .15s !important;
+}
+
+.letter {
+  --x: 50%;
+  --y: 30%;
+  --r: 0deg;
+
+  width: min(75vw, 340px);
+  height: 45vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding: 18px;
+  background: #f3dfbd;
+  color: #7a5535;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(12px, 2vw, 16px);
+  line-height: 1.4;
+
+  border-radius: 8px;
+  box-shadow: 0 15px 30px rgba(0,0,0,.3);
+
+  z-index: 120;
+  text-align: center;
+
+  pointer-events: auto;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+
+  animation-delay: .2s !important;
+}
+
+.letter-title { font-size: 1.2em; margin-bottom: .6em; font-weight: bold; }
+.letter-end { margin-top: .8em; text-align: right; font-style: italic; }
+
+/* PARTICLES (Hearts, Flowers, Sparkles) */
+.heart, .flower, .sparkle {
+  z-index: 95;
+  text-shadow: 0 4px 6px rgba(0,0,0,.2);
+}
+
+.heart { color: #ff315f; font-size: clamp(20px, 5vw, 45px); }
+.flower { color: #ff73ca; font-size: clamp(16px, 4vw, 35px); opacity: 0.9; }
+.sparkle { color: #fff8a6; font-size: clamp(14px, 3vw, 25px); }
+
+/* ALL 20 HEARTS MAPPED OUT */
+.h1 { --x: 10%; --y: 15%; --r: -10deg; animation-delay: .20s !important; }
+.h2 { --x: 90%; --y: 18%; --r: 15deg; color:#ff5b8f; animation-delay: .22s !important; }
+.h3 { --x: 20%; --y: 75%; --r: -20deg; animation-delay: .24s !important; }
+.h4 { --x: 85%; --y: 80%; --r: 25deg; animation-delay: .26s !important; }
+.h5 { --x: 40%; --y: 10%; --r: 5deg; color:#ff5b8f; animation-delay: .28s !important; }
+.h6 { --x: 15%; --y: 45%; --r: -12deg; animation-delay: .30s !important; }
+.h7 { --x: 88%; --y: 45%; --r: 14deg; color:#ff5b8f; animation-delay: .32s !important; }
+.h8 { --x: 30%; --y: 85%; --r: -5deg; animation-delay: .34s !important; }
+.h9 { --x: 75%; --y: 88%; --r: 18deg; animation-delay: .36s !important; }
+.h10 { --x: 5%; --y: 30%; --r: -22deg; color:#ff5b8f; animation-delay: .38s !important; }
+.h11 { --x: 95%; --y: 35%; --r: 20deg; animation-delay: .40s !important; }
+.h12 { --x: 50%; --y: 85%; --r: 0deg; animation-delay: .42s !important; }
+.h13 { --x: 65%; --y: 12%; --r: 15deg; color:#ff5b8f; animation-delay: .44s !important; }
+.h14 { --x: 12%; --y: 60%; --r: -18deg; animation-delay: .46s !important; }
+.h15 { --x: 82%; --y: 65%; --r: 12deg; animation-delay: .48s !important; }
+.h16 { --x: 35%; --y: 25%; --r: -8deg; animation-delay: .50s !important; }
+.h17 { --x: 65%; --y: 30%; --r: 10deg; color:#ff5b8f; animation-delay: .52s !important; }
+.h18 { --x: 25%; --y: 55%; --r: -15deg; animation-delay: .54s !important; }
+.h19 { --x: 75%; --y: 15%; --r: 8deg; animation-delay: .56s !important; }
+.h20 { --x: 45%; --y: 75%; --r: -5deg; color:#ff5b8f; animation-delay: .58s !important; }
+
+/* ALL 20 FLOWERS MAPPED OUT */
+.f1 { --x: 15%; --y: 35%; --r: 12deg; animation-delay: .21s !important; }
+.f2 { --x: 80%; --y: 35%; --r: -15deg; animation-delay: .23s !important; }
+.f3 { --x: 35%; --y: 85%; --r: 8deg; animation-delay: .25s !important; }
+.f4 { --x: 65%; --y: 80%; --r: -10deg; animation-delay: .27s !important; }
+.f5 { --x: 25%; --y: 18%; --r: 18deg; animation-delay: .29s !important; }
+.f6 { --x: 75%; --y: 22%; --r: -12deg; animation-delay: .31s !important; }
+.f7 { --x: 8%; --y: 50%; --r: 5deg; animation-delay: .33s !important; }
+.f8 { --x: 92%; --y: 50%; --r: -5deg; animation-delay: .35s !important; }
+.f9 { --x: 45%; --y: 15%; --r: 14deg; animation-delay: .37s !important; }
+.f10 { --x: 55%; --y: 88%; --r: -18deg; animation-delay: .39s !important; }
+.f11 { --x: 20%; --y: 65%; --r: 22deg; animation-delay: .41s !important; }
+.f12 { --x: 85%; --y: 70%; --r: -20deg; animation-delay: .43s !important; }
+.f13 { --x: 10%; --y: 25%; --r: 10deg; animation-delay: .45s !important; }
+.f14 { --x: 90%; --y: 28%; --r: -8deg; animation-delay: .47s !important; }
+.f15 { --x: 30%; --y: 40%; --r: 15deg; animation-delay: .49s !important; }
+.f16 { --x: 70%; --y: 40%; --r: -15deg; animation-delay: .51s !important; }
+.f17 { --x: 25%; --y: 88%; --r: 12deg; animation-delay: .53s !important; }
+.f18 { --x: 78%; --y: 85%; --r: -12deg; animation-delay: .55s !important; }
+.f19 { --x: 55%; --y: 12%; --r: 8deg; animation-delay: .57s !important; }
+.f20 { --x: 40%; --y: 65%; --r: -10deg; animation-delay: .59s !important; }
+
+/* SPARKLES MAPPED OUT */
+.s1 { --x: 18%; --y: 28%; --r: 0deg; animation-delay: .25s !important; }
+.s2 { --x: 85%; --y: 25%; --r: 45deg; animation-delay: .30s !important; }
+.s3 { --x: 30%; --y: 78%; --r: 20deg; animation-delay: .35s !important; }
+.s4 { --x: 75%; --y: 75%; --r: 60deg; animation-delay: .40s !important; }
+.s5 { --x: 50%; --y: 18%; --r: 15deg; animation-delay: .45s !important; }
+.s6 { --x: 12%; --y: 68%; --r: 30deg; animation-delay: .50s !important; }
+.s7 { --x: 90%; --y: 60%; --r: 0deg; animation-delay: .55s !important; }
+.s8 { --x: 45%; --y: 88%; --r: 75deg; animation-delay: .60s !important; }
+
+/* MOBILE RESPONSIVE OVERRIDES */
+@media (max-width: 768px) {
+  .tulips { --x: 20%; --y: 18%; --r: -20deg; }
+  .photo1 { --x: 82%; --y: 18%; --r: 15deg; }
+  .photo2 { --x: 75%; --y: 75%; --r: -12deg; }
+  .letter { --y: 35%; }
+}
+
+@media (max-width: 480px) {
+  .tulips { --x: 15%; --y: 15%; --r: -15deg; width: 140px; }
+  .photo1 { --x: 85%; --y: 12%; --r: 10deg; width: 100px; }
+  .photo2 { --x: 80%; --y: 80%; --r: -10deg; width: 95px; }
+  .letter {
+    width: 90vw;
+    --y: 35%;
+    font-size: 14px;
+    padding: 15px;
+  }
+}
